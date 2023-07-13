@@ -1,6 +1,8 @@
 import { readHtml } from '@/readHtml'
 import ObjectsToCsv from 'objects-to-csv'
 import { LogTimeUtil } from '@/util/logTimeUtil'
+import { writeFile } from 'fs/promises'
+import { resolve } from 'path'
 
 async function extractData(document: Document, pageUrl: string) {
   const containers = Array.from(document.querySelectorAll('.property-card__content-link'))
@@ -39,9 +41,10 @@ async function getData(url: string) {
 
 
 async function getAllData() {
-  const baseUrl = 'https://www.vivareal.com.br/venda/sp/sao-paulo/'
+  const baseUrl = 'https://www.vivareal.com.br/venda/sp/sao-paulo/?ordenar-por=preco:ASC'
   const data: any[] = []
-  for (let i = 1; i < 7; i++) {
+  const errorPages: number[] = []
+  for (let i = 1; i < 300; i++) {
     const append = i > 1 ? `?pagina=${i}` : ''
     try {
       const logTimeUtil = new LogTimeUtil()
@@ -49,9 +52,11 @@ async function getAllData() {
       console.info(`Finished page ${i} after ${logTimeUtil.getElapsedTime()} seconds`)
     } catch (e: any) {
       console.error('error processing data', e)
+      errorPages.push(i)
     }
   }
 
+  await writeFile(resolve('./error_pages.txt'), errorPages.toString(), { encoding: 'utf-8' })
   await new ObjectsToCsv(data).toDisk('./final.csv')
 }
 
