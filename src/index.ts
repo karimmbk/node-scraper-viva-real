@@ -2,14 +2,12 @@ import { readHtml } from '@/readHtml'
 import ObjectsToCsv from 'objects-to-csv'
 import { LogTimeUtil } from '@/util/logTimeUtil'
 
-
-async function extractData(document: Document) {
+async function extractData(document: Document, pageUrl: string) {
   const containers = Array.from(document.querySelectorAll('.property-card__content-link'))
-
+  const createAt = new Date()
   return await Promise.all(containers.map(async (el) => {
-    const link = 'https://www.vivareal.com.br' + el.getAttribute('href')
     return {
-      link: link,
+      link: pageUrl,
       title: el.querySelector('.property-card__title')?.textContent?.trim(),
       address: el.querySelector('.property-card__address')?.textContent?.trim(),
       area: el.querySelector('.property-card__detail-area .js-property-card-value')?.textContent?.trim(),
@@ -17,7 +15,8 @@ async function extractData(document: Document) {
       bathrooms: el.querySelector('.property-card__detail-bathroom .js-property-card-value')?.textContent?.trim(),
       garages: el.querySelector('.property-card__detail-garage .js-property-card-value')?.textContent?.trim(),
       price: el.querySelector('.js-property-card__price-small p')?.textContent?.trim().replace(/R\$|\s/g, ''),
-      ...await extractInternalData(link),
+      ...await extractInternalData('https://www.vivareal.com.br' + el.getAttribute('href')),
+      createdAt: createAt.toISOString().split('.')[0].replace('T', '-'),
     }
   }))
 }
@@ -35,15 +34,15 @@ async function extractInternalData(url: string) {
 
 async function getData(url: string) {
   const dom = await readHtml(url)
-  return await extractData(dom)
+  return await extractData(dom, url)
 }
 
 
 async function getAllData() {
   const baseUrl = 'https://www.vivareal.com.br/venda/sp/sao-paulo/'
   const data: any[] = []
-  for (let i = 0; i < 7; i++) {
-    const append = i > 0 ? `?pagina=${i}` : ''
+  for (let i = 1; i < 7; i++) {
+    const append = i > 1 ? `?pagina=${i}` : ''
     try {
       const logTimeUtil = new LogTimeUtil()
       data.push(...await getData(baseUrl + append))
@@ -55,6 +54,5 @@ async function getAllData() {
 
   await new ObjectsToCsv(data).toDisk('./final.csv')
 }
-
 
 getAllData()
