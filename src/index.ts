@@ -41,14 +41,14 @@ async function getData(url: string) {
 
 
 async function getAllData() {
-  const baseUrl = 'https://www.vivareal.com.br/venda/sp/sao-paulo/?ordenar-por=preco:ASC'
+  const baseUrl = 'https://www.vivareal.com.br/venda/sp/sao-paulo/?pagina=#onde=Brasil,S%C3%A3o%20Paulo,S%C3%A3o%20Paulo,,,,,,BR%3ESao%20Paulo%3ENULL%3ESao%20Paulo,,,'
   const data: any[] = []
   const errorPages: number[] = []
-  for (let i = 1; i < 300; i++) {
+  for (let i = 2; i < 3; i++) {
     const append = i > 1 ? `?pagina=${i}` : ''
     try {
       const logTimeUtil = new LogTimeUtil()
-      data.push(...await getData(baseUrl + append))
+      data.push(...await getData(`https://www.vivareal.com.br/venda/sp/sao-paulo/?pagina=${i}#onde=Brasil,S%C3%A3o%20Paulo,S%C3%A3o%20Paulo,,,,,,BR%3ESao%20Paulo%3ENULL%3ESao%20Paulo,,,`))
       console.info(`Finished page ${i} after ${logTimeUtil.getElapsedTime()} seconds`)
     } catch (e: any) {
       console.error('error processing data', e)
@@ -57,7 +57,7 @@ async function getAllData() {
   }
 
   await writeFile(resolve('./error_pages.txt'), errorPages.toString(), { encoding: 'utf-8' })
-  await new ObjectsToCsv(data).toDisk('./final.csv')
+  await new ObjectsToCsv(data).toDisk('./final_zona_norte.csv')
 }
 
 getAllData()
