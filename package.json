@@ -1,0 +1,19 @@
+{
+  "name": "scraper-viva-real",
+  "version": "1.0.0",
+  "description": "scraper to extract property data",
+  "main": "index.js",
+  "scripts": {
+    "scrape": "tsx ./index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rocketseat/eslint-config": "^2.0.1",
+    "@types/node": "^20.4.2",
+    "eslint": "^8.44.0",
+    "tsx": "3.12.7",
+    "typescript": "^5.1.6"
+  }
+}
