@@ -3,6 +3,7 @@ import ObjectsToCsv from 'objects-to-csv'
 import { LogTimeUtil } from '@/util/logTimeUtil'
 import { writeFile } from 'fs/promises'
 import { resolve } from 'path'
+import { formatDate } from '@/util/dateUtil'
 
 async function extractData(document: Document, pageUrl: string) {
   const containers = Array.from(document.querySelectorAll('.property-card__content-link'))
@@ -10,13 +11,14 @@ async function extractData(document: Document, pageUrl: string) {
   return await Promise.all(containers.map(async (el) => {
     return {
       link: pageUrl,
+      date: formatDate(pageUrl.replace(/\D/g, '')),
       title: el.querySelector('.property-card__title')?.textContent?.trim(),
       address: el.querySelector('.property-card__address')?.textContent?.trim(),
       area: el.querySelector('.property-card__detail-area .js-property-card-value')?.textContent?.trim(),
       rooms: el.querySelector('.property-card__detail-room .js-property-card-value')?.textContent?.trim(),
       bathrooms: el.querySelector('.property-card__detail-bathroom .js-property-card-value')?.textContent?.trim(),
       garages: el.querySelector('.property-card__detail-garage .js-property-card-value')?.textContent?.trim(),
-      price: el.querySelector('.js-property-card__price-small p')?.textContent?.trim().replace(/R\$|\s/g, ''),
+      price: el.querySelector('.js-property-card__price-small p')?.textContent?.trim().replace(/\D/g, ''),
       ...await extractInternalData('https://www.vivareal.com.br' + el.getAttribute('href')),
       createdAt: createAt.toISOString().split('.')[0].replace('T', '-'),
     }

@@ -130,3 +130,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# ignore error_pages
+/error_pages*
+
+# ignore final csv files
+/final_*
